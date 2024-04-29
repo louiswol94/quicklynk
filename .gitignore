@@ -1,0 +1,6 @@
+# Ignore .env file in the server directory
+server/.env
+server/node_modules
+
+# dependencies
+client/node_modules
