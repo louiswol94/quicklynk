@@ -1,19 +1,35 @@
-// client/src/UrlForm.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function UrlForm() {
   const [longUrl, setLongUrl] = useState('');
   const [shortUrl, setShortUrl] = useState('');
 
-  const handleSubmit = async (e) => {
+  useEffect(() => {
+    const ws = new WebSocket('ws://localhost:3003');
+
+    ws.onopen = () => {
+      console.log('WebSocket connected');
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setShortUrl(data.shortId);
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket disconnected');
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, []);
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post('http://localhost:3001/shorten', { originalUrl: longUrl });
-      setShortUrl(response.data.shortUrl);
-    } catch (error) {
-      console.error('Error:', error);
-    }
+	axios.post('http://localhost:3001/shorten', { originalUrl: longUrl });
+    setLongUrl('');
   };
 
   return (
